@@ -38,12 +38,7 @@ def schedulerMain():
     if (splitGymDate[2] != splitCurrentDate[2] + 1): #If there is not a gym event the next day
         return f'Found gym event, but it was not tomorrow'
     gymTime = badGymTime.split('-')[0]
-    splitGymTime = [int(x) for x in str(gymTime).split(':')]
-    currentDayOfWeek = datetime.today().weekday()
 
-    weekdayHours = [6, 7.25, 11, 12.25, 13.5, 16, 17.25, 18.5, 19.75, 21]
-    satHours = [9, 10.25, 11.5, 12.75]
-    sunHours = [12, 13.25, 14.5, 15.75]
     now = datetime.now()
     currentTime = now.strftime("%H:%M:%S")
 
@@ -95,29 +90,9 @@ def schedulerMain():
     # Begin process of getting around 2-factor
     driver.switch_to.frame("duo_iframe")
 
-
-    # Legacy code for inputting passcode button
-    # stdClick(By.XPATH, "//button[@id='passcode']")
-    # passCodeButton = stdGet(By.XPATH, "//input[@name='passcode']")
-
-    # Old way of going to duo at this point
-    # duoPasscode = DuoRunner.main()
-
     # Waiting until Duo finishes its processes
     while (returnQueue.empty()):
         continue
-    # Legacy way for passcode
-    # duoPasscode = returnQueue.get()
-    # # passCodeButton.send_keys(duoPasscode)
-    # stdClick(By.XPATH, "//button[@id='passcode']")
-
-    ####### Old way of getting duo
-    # stdClick(By.XPATH, "//button[text()='Send Me a Push ']")
-    # while "mycrc" not in driver.current_url[0:10].lower():
-    #     try:
-    #         driver.find_element(By.XPATH, "//button[text()='Send Me a Push ']").click()
-    #     except:
-    #         break
 
 
     # # This switch might be implicit because we go to a new page, but it doesn't seem to hurt
