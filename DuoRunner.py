@@ -5,7 +5,7 @@ import pyperclip
 
 
 
-def main(returnQueue):
+def main(triggerQueue, returnQueue):
     #
     # p1 = subprocess.run(['dir','dne'], shell=True, stderr=subprocess.DEVNULL)
     # print(p1.stderr)
@@ -20,8 +20,8 @@ def main(returnQueue):
     while status.stdout.split()[-1] != 'device' or 'stopped' not in thirdStatus.stdout:
         time.sleep(0.25)
         status = subprocess.run("adb devices", capture_output=True, text=True)
-        print(status.stdout.split())
-        print('stopped' not in thirdStatus.stdout)
+        # print(status.stdout.split())
+        # print('stopped' not in thirdStatus.stdout)
         otherStatus = subprocess.run("adb shell service call power 12", capture_output=True, text=True)
         otherStatus = subprocess.run('adb shell dumpsys power | find "mWakefulness="', capture_output=True, text=True, shell=True)
         thirdStatus = subprocess.run('adb shell getprop init.svc.bootanim', capture_output=True, shell=True, text=True)
@@ -31,21 +31,26 @@ def main(returnQueue):
     # print(thirdStatus.stdout)
     time.sleep(1)
 
+    while triggerQueue.empty():
+        continue
 
-    # subprocess.call("adb shell am start com.duosecurity.duomobile/.account_list.AccountListActivity", shell=True)
-    # time.sleep(12)
+    subprocess.call("adb shell am start com.duosecurity.duomobile/.account_list.AccountListActivity", shell=True)
+    time.sleep(12)
     # subprocess.call("adb shell input touchscreen tap 970 800", shell=True)
     subprocess.call("adb shell input touchscreen tap 550 600", shell=True)
-    time.sleep(100000)
+    # time.sleep(100000)
     subprocess.call("adb shell input touchscreen tap 550 800", shell=True)
     time.sleep(0.5)
     duoCodeRaw = pyperclip.paste()
     # subprocess.run("adb shell kill-server", shell=True)
     subprocess.run("Taskkill /IM qemu-system-x86_64.exe /F /T", shell=True)
     returnQueue.put(duoCodeRaw)
+    time.sleep(10000)
     return
     # return duoCodeRaw
 
 if __name__ == '__main__':
-    from multiprocessing import Queue
-    main(Queue(1))
+    from multiprocessing import SimpleQueue
+    triggerQueue = SimpleQueue()
+    triggerQueue.put('Go get em chief')
+    main(triggerQueue, SimpleQueue())

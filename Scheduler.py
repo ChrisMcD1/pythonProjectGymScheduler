@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.support.select import Select
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.keys import Keys
 import time as sleepyTime
@@ -9,7 +10,7 @@ from selenium.webdriver.common.by import By
 from GoogleCalendarParser import GoogleCalendarParser, updateGymEvent
 from datetime import datetime, date, time
 import DuoRunner
-from multiprocessing import Process, Queue
+from multiprocessing import Process, SimpleQueue
 
 def schedulerMain():
 
@@ -35,27 +36,28 @@ def schedulerMain():
         # print(f'Gym event found, but had already registered')
         return f'Gym event found, but had already registered'
 
-    if (splitGymDate[2] != splitCurrentDate[2] + 1): #If there is not a gym event the next day
-        return f'Found gym event, but it was not tomorrow'
     gymTime = badGymTime.split('-')[0]
 
     now = datetime.now()
     currentTime = now.strftime("%H:%M:%S")
 
     splitCurrentTime = [int(temp) for temp in currentTime.split(':')]
-    splitGymTime = [int(temp) for temp in gymTime.split(':)')]
+    splitGymTime = [int(temp) for temp in gymTime.split(':')]
 
     gymMinuteTime = splitGymTime[0] * 60 + splitGymTime[1]
     currentMinuteTime = splitCurrentTime[0] * 60 + splitCurrentTime[1]
 
-    if (gymMinuteTime > currentMinuteTime + 2):
-        return f'Found gym event tomorrow but it is {gymMinuteTime - currentMinuteTime} minutes after now'
+
+
+    if (splitGymDate[2] >= splitCurrentDate[2] + 1) and (gymMinuteTime > currentMinuteTime + 2): #If there is not a gym event the next day
+        return f'Found gym event on {splitGymDate} at {gymTime} and determined it was too far in the future'
 
     # print(f'Found gym event tomorrow that is {currentMinuteTime - gymMinuteTime} minutes before now')
 #######################################################################################################################
     # We have identified an event and are now trying to register for it
-    returnQueue = Queue(1)
-    duoProcess = Process(target=DuoRunner.main, args=(returnQueue,))
+    returnQueue = SimpleQueue()
+    triggerQueue = SimpleQueue()
+    duoProcess = Process(target=DuoRunner.main, args=(triggerQueue, returnQueue))
     duoProcess.start()
     driver = webdriver.Chrome()
     driver.get("https://mycrc.gatech.edu/")
@@ -79,8 +81,9 @@ def schedulerMain():
     GTUsernameInput = stdGet(By.ID, "username")
     GTPasswordInput = stdGet(By.ID, "password")
     with open("GTCredentials.txt", "r") as f:
-        username = f.readline()
-        password = f.readline()
+        combinedUserPassword = f.read().splitlines()
+        username = combinedUserPassword[0]
+        password = combinedUserPassword[1]
         GTUsernameInput.send_keys(username)
         GTPasswordInput.send_keys(password)
 
@@ -90,10 +93,20 @@ def schedulerMain():
     # Begin process of getting around 2-factor
     driver.switch_to.frame("duo_iframe")
 
-    # Waiting until Duo finishes its processes
-    while (returnQueue.empty()):
-        continue
+    # Need to do these presses to make that clickable
+    phoneElement = Select(stdGet(By.XPATH, "//select[@name='device']"))
+    phoneElement.select_by_value("phone3")
+    print('Selected Phone')
+    # stdClick(By.XPATH, "//button[contains(text(), 'Send Me a Push ')]")
+    stdClick(By.XPATH, "//fieldset[@data-device-index='phone3']//button[contains(text(), 'Send Me a Push')]")
+    # driver.find_element(By.XPATH, "//button[contains(text(), 'Send Me a Push ')]").click()
+    # stdClick(By.XPATH, "//button[contains(text(), 'Send Me a Push ')]/ancestor::fieldset[@data-device-index='phone3']")
+    print('Sent push')
+    triggerQueue.put('Go gettem chief')
 
+    # Waiting until Duo finishes its processes
+    while returnQueue.empty():
+        continue
 
     # # This switch might be implicit because we go to a new page, but it doesn't seem to hurt
 
