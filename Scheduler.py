@@ -55,6 +55,7 @@ def schedulerMain():
     # print(f'Found gym event tomorrow that is {currentMinuteTime - gymMinuteTime} minutes before now')
 #######################################################################################################################
     # We have identified an event and are now trying to register for it
+    print("Have found an event and am attempting to register")
     returnQueue = SimpleQueue()
     triggerQueue = SimpleQueue()
     duoProcess = Process(target=DuoRunner.main, args=(triggerQueue, returnQueue))
@@ -153,14 +154,14 @@ def schedulerMain():
     # NOT PRESSING THE SECOND CHECKOUT BUTTON SO I DON'T SPAM THEM
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # # # Press the second checkout button
-    # stdClick(By.XPATH, "//button[contains(.,'Checkout') and @class='card-item-2-large']")
+    stdClick(By.XPATH, "//button[contains(.,'Checkout') and @class='card-item-2-large']")
 
     # Should be registered!
 
     # Update the google calendar events
     updateGymEvent(gymEvent, service)
     # print('tried to do the update')
-    sleepyTime.sleep(100)
+    # sleepyTime.sleep(100)
     driver.close()
     return 'Successfully registered!'
 

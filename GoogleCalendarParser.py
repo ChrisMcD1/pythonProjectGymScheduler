@@ -47,7 +47,7 @@ def GoogleCalendarParser(eventlookahead):
     gymEvents = []
     for event in events:
         # print(f"eventsummary: {event.get('summary')}")
-        if 'gym' in event['summary'].lower():
+        if 'gym' in event['summary'].lower() and 'registered' not in event['summary'].lower():
             gymEvents.append(event)
 
     if gymEvents:

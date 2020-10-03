@@ -6,7 +6,7 @@ def main():
     while True:
         result = schedulerMain()
         print(result)
-        time.sleep(5)
+        time.sleep(1)
 
 if __name__ == '__main__':
     main()

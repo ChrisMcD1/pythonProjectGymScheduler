@@ -1,3 +1,2 @@
-
-cd C:\Users\camcd\PycharmProjects\pythonProject 
+cd C:\Users\camcd\PycharmProjects\pythonProject
 START /B python SchedulerWrapper.py
