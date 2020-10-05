@@ -47,13 +47,14 @@ def schedulerMain():
     gymMinuteTime = splitGymTime[0] * 60 + splitGymTime[1]
     currentMinuteTime = splitCurrentTime[0] * 60 + splitCurrentTime[1]
 
+    # print(splitGymDate)
+    # print(splitCurrentDate)
 
-
-    if (splitGymDate[2] >= splitCurrentDate[2] + 1) and (gymMinuteTime > currentMinuteTime + 2): #If there is not a gym event the next day
+    if (splitGymDate[2] > splitCurrentDate[2] + 1) or (splitGymDate[2] == splitCurrentDate[2] + 1) and (gymMinuteTime > currentMinuteTime + 2): #If there is not a gym event the next day
         return f'Found gym event on {splitGymDate} at {gymTime} and determined it was too far in the future'
 
     # print(f'Found gym event tomorrow that is {currentMinuteTime - gymMinuteTime} minutes before now')
-#######################################################################################################################
+# #######################################################################################################################
     # We have identified an event and are now trying to register for it
     print("Have found an event and am attempting to register")
     returnQueue = SimpleQueue()
@@ -122,10 +123,13 @@ def schedulerMain():
     # Cleaning up formattedGymTime to match the correct input
     if splitGymTime[0] > 12:
         splitGymTime[0] = splitGymTime[0] - 12
-    if splitGymTime[1] == 0:
-        formattedGymTime = f'{splitGymTime[0]}:00:00'
+        noonStatus = 'PM'
     else:
-        formattedGymTime = f'{splitGymTime[0]}:{splitGymTime[1]}:00'
+        noonStatus = 'AM'
+    if splitGymTime[1] == 0:
+        formattedGymTime = f'{splitGymTime[0]}:00:00 {noonStatus}'
+    else:
+        formattedGymTime = f'{splitGymTime[0]}:{splitGymTime[1]}:00 {noonStatus}'
 
 
     # Registering for the formatted time
@@ -137,6 +141,10 @@ def schedulerMain():
             stdClick(By.XPATH, registrationXPATH)
             slotOpen = True
         except:
+            # print('Was unable to find the time on this iteration')
+            sleepyTime.sleep(2)
+            driver.refresh()
+            attempts += 1
             continue
 
     if not slotOpen:
