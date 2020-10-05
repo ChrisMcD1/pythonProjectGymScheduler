@@ -1,2 +1,3 @@
-cd C:\Users\camcd\PycharmProjects\pythonProject
+E:
+cd E:\GitHubFolder\pythonProjectGymScheduler
 START /B python SchedulerWrapper.py

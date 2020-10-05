@@ -97,10 +97,10 @@ def schedulerMain():
 
     # Need to do these presses to make that clickable
     phoneElement = Select(stdGet(By.XPATH, "//select[@name='device']"))
-    phoneElement.select_by_value("phone3")
+    phoneElement.select_by_value("phone2")
     print('Selected Phone')
     # stdClick(By.XPATH, "//button[contains(text(), 'Send Me a Push ')]")
-    stdClick(By.XPATH, "//fieldset[@data-device-index='phone3']//button[contains(text(), 'Send Me a Push')]")
+    stdClick(By.XPATH, "//fieldset[@data-device-index='phone2']//button[contains(text(), 'Send Me a Push')]")
     # driver.find_element(By.XPATH, "//button[contains(text(), 'Send Me a Push ')]").click()
     # stdClick(By.XPATH, "//button[contains(text(), 'Send Me a Push ')]/ancestor::fieldset[@data-device-index='phone3']")
     print('Sent push')
@@ -109,6 +109,20 @@ def schedulerMain():
     # Waiting until Duo finishes its processes
     while returnQueue.empty():
         continue
+
+
+    duoWaitAttempts = 0
+    multipleAttempts = 2
+    while 'login' in driver.current_url[0:15].lower():
+        sleepyTime.sleep(1)
+        duoWaitAttempts += 1
+        if duoWaitAttempts > 10:
+            DuoRunner.main(SimpleQueue(), SimpleQueue(), speedMultiple=multipleAttempts)
+            multipleAttempts += 1
+            duoWaitAttempts = 0
+        if multipleAttempts == 5:
+            return 'Something wrong with DuoRunner. Attempted 5 times to do it again and we never moved off the login page'
+
 
     # # This switch might be implicit because we go to a new page, but it doesn't seem to hurt
 
@@ -123,6 +137,8 @@ def schedulerMain():
     # Cleaning up formattedGymTime to match the correct input
     if splitGymTime[0] > 12:
         splitGymTime[0] = splitGymTime[0] - 12
+        noonStatus = 'PM'
+    elif splitGymTime[0] == 12:
         noonStatus = 'PM'
     else:
         noonStatus = 'AM'
@@ -162,7 +178,7 @@ def schedulerMain():
     # NOT PRESSING THE SECOND CHECKOUT BUTTON SO I DON'T SPAM THEM
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # # # Press the second checkout button
-    stdClick(By.XPATH, "//button[contains(.,'Checkout') and @class='card-item-2-large']")
+    # stdClick(By.XPATH, "//button[contains(.,'Checkout') and @class='card-item-2-large']")
 
     # Should be registered!
 
