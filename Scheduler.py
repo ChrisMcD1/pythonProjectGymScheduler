@@ -117,11 +117,16 @@ def schedulerMain():
         sleepyTime.sleep(1)
         duoWaitAttempts += 1
         if duoWaitAttempts > 10:
-            DuoRunner.main(SimpleQueue(), SimpleQueue(), speedMultiple=multipleAttempts)
-            multipleAttempts += 1
-            duoWaitAttempts = 0
-        if multipleAttempts == 5:
-            return 'Something wrong with DuoRunner. Attempted 5 times to do it again and we never moved off the login page'
+            return 'Duo too slow. Plz fix'
+        #     newTriggerQueue = SimpleQueue()
+        #     DuoRunner.main(newTriggerQueue, SimpleQueue(), speedMultiple=multipleAttempts)
+        #     stdClick(By.XPATH, "//fieldset[@data-device-index='phone2']//button[contains(text(), 'Send Me a Push')]")
+        #     newTriggerQueue.put('We got this this time')
+        #     multipleAttempts += 1\
+
+        #     duoWaitAttempts = 0
+        # if multipleAttempts == 5:
+        #     return 'Something wrong with DuoRunner. Attempted 5 times to do it again and we never moved off the login page'
 
 
     # # This switch might be implicit because we go to a new page, but it doesn't seem to hurt
@@ -151,14 +156,15 @@ def schedulerMain():
     # Registering for the formatted time
     attempts = 0
     slotOpen = False
-    while attempts < 100 and not slotOpen:
+    fastWait = WebDriverWait(driver,1)
+    registrationXPATH = f'//button[contains(@onclick, "{formattedGymTime}")]'
+    while attempts < 400 and not slotOpen:
         try:
-            registrationXPATH = f'//button[contains(@onclick, "{formattedGymTime}")]'
-            stdClick(By.XPATH, registrationXPATH)
+            fastWait.until(EC.element_to_be_clickable((By.XPATH, registrationXPATH))).click()
             slotOpen = True
         except:
             # print('Was unable to find the time on this iteration')
-            sleepyTime.sleep(2)
+            # sleepyTime.sleep(2)
             driver.refresh()
             attempts += 1
             continue
@@ -178,7 +184,7 @@ def schedulerMain():
     # NOT PRESSING THE SECOND CHECKOUT BUTTON SO I DON'T SPAM THEM
     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     # # # Press the second checkout button
-    # stdClick(By.XPATH, "//button[contains(.,'Checkout') and @class='card-item-2-large']")
+    stdClick(By.XPATH, "//button[contains(.,'Checkout') and @class='card-item-2-large']")
 
     # Should be registered!
 
@@ -187,7 +193,7 @@ def schedulerMain():
     # print('tried to do the update')
     # sleepyTime.sleep(100)
     driver.close()
-    return 'Successfully registered!'
+    return f'Successfully registered for {gymTime} on {gymDate}!'
 
 if __name__ == '__main__':
     schedulerMain()

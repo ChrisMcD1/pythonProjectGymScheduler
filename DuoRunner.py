@@ -30,7 +30,7 @@ def main(triggerQueue, returnQueue, speedMultiple=1):
 
     while triggerQueue.empty():
         continue
-    time.sleep(1*speedMultiple^2)
+    time.sleep(1)
     subprocess.call('adb shell am start com.duosecurity.duomobile/.account_list.AccountListActivity"', shell=True)
     time.sleep(8*speedMultiple)
     subprocess.call("adb shell input touchscreen tap 550 430", shell=True)
